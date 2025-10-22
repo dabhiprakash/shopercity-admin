@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -9,46 +9,78 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
-class AuthController extends Controller
+class AuthController
 {
     // Register User
     public function register(Request $request)
     {
+        // 🛡️ 1. Validate input
         $validator = Validator::make($request->all(), [
-            'first_name'=>'required|string|max:50',
-            'last_name'=>'nullable|string|max:50',
-            'email'=>'required|email|unique:users,email',
-            'password'=>'required|string|min:6|confirmed',
-            'mobile'=>'nullable|string|max:15',
-            'district'=>'required|string',
+            'first_name'   => 'required|string|max:50',
+            'last_name'    => 'nullable|string|max:50',
+            'email'        => 'required|email|unique:users,email',
+            'password'     => 'required|string|min:6',
+            'mobile'       => 'nullable|string|max:15',
+            'district'     => 'required|string',
+            'state'        => 'required|string',
+            'country'      => 'required|string',
+            'pincode'      => 'required|string',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'referral_id'  => 'nullable|string',
         ]);
-
-        if($validator->fails()){
-            return response()->json($validator->errors(), 422);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
         }
-
+    
+        $imagePath = null;
         $otp = rand(100000, 999999);
-
+        if ($request->hasFile('image')) {
+            $imageName = time() .$otp.'_' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->move(public_path('uploads/users'), $imageName);
+            $imagePath = 'uploads/users/' . $imageName;
+        }
+    
         $user = User::create([
-            'first_name'=>$request->first_name,
-            'last_name'=>$request->last_name,
-            'email'=>$request->email,
-            'password'=>Hash::make($request->password),
-            'mobile'=>$request->mobile,
-            'district'=>$request->district,
-            'otp'=>$otp,
-            'otp_expires_at'=>Carbon::now()->addMinutes(10),
+            'first_name'       => $request->first_name,
+            'last_name'        => $request->last_name,
+            'email'            => $request->email,
+            'password'         => Hash::make($request->password),
+            'mobile'           => $request->mobile,
+            'district'         => $request->district,
+            'state'            => $request->state,
+            'country'          => $request->country,
+            'pincode'          => $request->pincode,
+            'image'            => $imagePath,
+            'referral_id'      => $request->referral_id,
+            'otp'              => $otp,
+            'otp_expires_at'   => Carbon::now()->addMinutes(10),
+            'status'           => 0,
         ]);
-
-        // Send OTP Email
-        Mail::raw("Your verification OTP is: $otp", function($message) use($user){
-            $message->to($user->email)
-                    ->subject('Email Verification OTP');
-        });
-
-        return response()->json(['message'=>'User registered successfully, OTP sent to email.'],201);
+    
+        try {
+            Mail::raw("Your verification OTP is: $otp", function($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Email Verification OTP');
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'User registered but email could not be sent.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    
+        return response()->json([
+            'status'  => true,
+            'message' => 'User registered successfully. OTP sent to email.',
+        ], 201);
     }
-
+    
     // Verify OTP
     public function verifyOtp(Request $request){
         $validator = Validator::make($request->all(), [
@@ -90,8 +122,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'access_token'=>$token,
-            'token_type'=>'Bearer',
+            'token'=>$token,
             'user'=>$user
         ]);
     }
@@ -149,8 +180,8 @@ class AuthController extends Controller
 
         $user->password = Hash::make($request->new_password);
         $user->save();
-
-        return response()->json(['message'=>'Password changed successfully']);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(['message'=>'Password changed successfully', 'token'=>$token,]);
     }
 
     // Logout

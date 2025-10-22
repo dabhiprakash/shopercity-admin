@@ -16,32 +16,13 @@ use App\Http\Controllers\admin\AuthController;
 
 
 
+use Illuminate\Support\Facades\Artisan;
+
 Route::get('/9215', function () {
-    $exitCode = Artisan::call('config:cache');
-    $exitCode = Artisan::call('cache:clear');
-    $exitCode = Artisan::call('route:clear');
-    $exitCode = Artisan::call('view:clear');
+    Artisan::call('config:cache');
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
     echo "cache cleared";
 });
 
-
-Route::controller(AuthController::class)->group(function () {
-    Route::get('/', 'front_page')->name('admin');
-    Route::get('/login', 'index')->name('admin.login');
-    Route::post('/login', 'login')->name('admin.login.submit');
-    Route::get('/logout', 'logout')->name('admin.logout');
-    Route::get('/forgot-password', 'forgot_password')->name('admin.password.forgot');
-    Route::post('/forgot-password', 'forgot_password')->name('admin.password.forgot.submit');
-    Route::get('/reset-password/{token}', 'reset_password')->name('admin.password.reset');
-    Route::post('/reset-password', 'reset_password')->name('admin.password.update');
-});
-
-
-Route::middleware(['admin'])->group(function () {
-    Route::controller(AuthController::class)->group(function () {
-        Route::get('/profile', 'profile')->name('admin.profile');;
-        Route::post('/update-profile', 'update');
-        Route::post('/update-password', 'password_update');
-        Route::post('/duplicate', 'duplicate');
-    });
-});

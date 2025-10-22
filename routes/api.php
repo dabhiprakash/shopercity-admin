@@ -2,7 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\StateController;
+use App\Http\Controllers\Api\VendorController;
+use App\Http\Controllers\Api\PlanController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,3 +28,18 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+Route::get('/cities', [CityController::class, 'index']);
+Route::get('/states', [StateController::class, 'index']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/search', [CategoryController::class, 'search']);
+    Route::get('/categories/trending', [CategoryController::class, 'trending']);
+    Route::get('/vendors', [VendorController::class, 'index']);
+    Route::get('/vendors/{id}', [VendorController::class, 'show']);
+    Route::get('/user/plans', [PlanController::class, 'userPlans']);
+
+    Route::get('/plans', [PlanController::class, 'index']);
+    Route::get('/plans/{id}', [PlanController::class, 'show']);
+});
