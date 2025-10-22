@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\VendorController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ContactUsController;
+use App\Http\Controllers\Api\DiscountController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -52,5 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Optional admin API: list all messages
     Route::get('/contact-us', [ContactUsController::class, 'index']);
+    Route::get('/discounts', [DiscountController::class, 'index']);       // List discounts with pagination
+    Route::get('/discounts/{id}', [DiscountController::class, 'show']);   
 
 });
