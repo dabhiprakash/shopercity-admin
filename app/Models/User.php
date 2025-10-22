@@ -1,17 +1,28 @@
 <?php
-namespace App\Repositories;
 
-use App\Models\User;
+namespace App\Models;
 
-class UserRepository
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
 {
-    public function all()
-    {
-        return User::latest()->paginate(10);
-    }
+    use HasApiTokens, HasFactory, Notifiable;
 
-    public function find($id)
-    {
-        return User::findOrFail($id);
-    }
+    protected $fillable = [
+        'first_name','last_name','email','password','mobile','address','city',
+        'district','state','country','image','pincode','aadhar_number',
+        'status','balance','withdraw_total','is_active','referral_id','upline_id','otp','otp_expires_at'
+    ];
+
+    protected $hidden = [
+        'password','otp'
+    ];
+
+    protected $casts = [
+        'otp_expires_at' => 'datetime',
+    ];
 }
