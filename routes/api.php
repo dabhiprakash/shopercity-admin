@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\StateController;
 use App\Http\Controllers\Api\VendorController;
 use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\ContactUsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -42,4 +44,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/plans', [PlanController::class, 'index']);
     Route::get('/plans/{id}', [PlanController::class, 'show']);
+    Route::get('/wishlist', [WishlistController::class, 'index']);    // List wishlist
+    Route::post('/wishlist', [WishlistController::class, 'store']);   // Add to wishlist
+    Route::delete('/wishlist', [WishlistController::class, 'destroy']); // Remove from wishlist
+
+    Route::post('/contact-us', [ContactUsController::class, 'store']);
+
+    // Optional admin API: list all messages
+    Route::get('/contact-us', [ContactUsController::class, 'index']);
+
 });
