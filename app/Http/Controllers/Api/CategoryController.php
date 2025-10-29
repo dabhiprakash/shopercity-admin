@@ -10,8 +10,13 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::orderBy('arrange', 'asc')->get();
-
+        // $enc = encrypt_it(1);
+        // echo $enc . ' <=====> ' . decrypt_it($enc) . PHP_EOL;
+        $categories = Category::select('name', 'image', 'id')->get()->map(function ($category) {
+            $category->id = encrypt_it($category->id);
+            return $category;
+        });
+    
         return response()->json([
             'status' => true,
             'message' => 'All categories fetched successfully',

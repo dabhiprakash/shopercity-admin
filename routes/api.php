@@ -33,10 +33,10 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::get('/cities', [CityController::class, 'index']);
-Route::get('/states', [StateController::class, 'index']);
+Route::get('/state/list', [StateController::class, 'index']);
+Route::get('/category/list', [CategoryController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/search', [CategoryController::class, 'search']);
     Route::get('/categories/trending', [CategoryController::class, 'trending']);
     Route::get('/vendors', [VendorController::class, 'index']);

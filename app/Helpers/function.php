@@ -38,36 +38,41 @@ function p($data, $continue = false)
         die;
     }
 }
-function encrypt_it($string)
+
+function encrypt_it($id)
 {
-    $key    = 'RestaurantBuyOuts';
-    $result = '';
+    $key = 'shoper_city_dev';
+    $salt = random_int(10, 99);
+    $input = $salt . $id;
+    $hash = hash_hmac('sha256', $input, $key, true);
 
-    for ($i = 0, $k = strlen($string); $i < $k; $i++) {
-        $char       = substr($string, $i, 1);
-        $keychar    = substr($key, ($i % strlen($key)) - 1, 1);
-        $char       = chr(ord($char) + ord($keychar));
-        $result     .= $char;
-    }
-
-    return base64_encode($result);
+    $base62 = base64_encode($hash);
+    $base62 = strtr($base62, '+/', 'AZ');
+    $base62 = preg_replace('/=+$/', '', $base62);
+    $encoded = substr($base62, 0, 10);
+    return $salt . $encoded;
 }
 
-function decrypt_it($string)
+function decrypt_it($encrypted)
 {
-    $result = '';
-    $key    = 'RestaurantBuyOuts';
-    $string = base64_decode($string);
-
-    for ($i = 0, $k = strlen($string); $i < $k; $i++) {
-        $char       = substr($string, $i, 1);
-        $keychar    = substr($key, ($i % strlen($key)) - 1, 1);
-        $char       = chr(ord($char) - ord($keychar));
-        $result     .= $char;
+    $key = 'shoper_city_dev';
+    $salt = substr($encrypted, 0, 2);
+    $encoded = substr($encrypted, 2);
+    for ($i = 1; $i <= 999999; $i++) {
+        $input = $salt . $i;
+        $hash = hash_hmac('sha256', $input, $key, true);
+        $base62 = base64_encode($hash);
+        $base62 = strtr($base62, '+/', 'AZ');
+        $base62 = preg_replace('/=+$/', '', $base62);
+        if (substr($base62, 0, 10) === $encoded) {
+            return (string)$i;
+        }
     }
 
-    return $result;
+    return null;
 }
+
+
 
 function image_convert_webp($path)
 {

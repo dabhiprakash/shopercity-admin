@@ -11,16 +11,12 @@ class StateController extends Controller
     /**
      * 📜 Get all states or search by name
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = State::query();
-
-        // 🔍 Search by state name
-        if ($request->has('search') && $request->search !== '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        $states = $query->orderBy('name', 'asc')->get();
+        $states = State::orderBy('name', 'asc')-> get()->map(function ($state) {
+            $state->id = encrypt_it($state->id);
+            return $state;
+        });
 
         return response()->json([
             'status' => true,
