@@ -26,5 +26,4 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/signup','signup');
     Route::get('/signup2','signup2');
     Route::get('/signup3','signup3');
-
 });

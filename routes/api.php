@@ -45,15 +45,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/plans', [PlanController::class, 'index']);
     Route::get('/plans/{id}', [PlanController::class, 'show']);
-    Route::get('/wishlist', [WishlistController::class, 'index']);    // List wishlist
-    Route::post('/wishlist', [WishlistController::class, 'store']);   // Add to wishlist
-    Route::delete('/wishlist', [WishlistController::class, 'destroy']); // Remove from wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist', [WishlistController::class, 'destroy']);
 
     Route::post('/contact-us', [ContactUsController::class, 'store']);
-
-    // Optional admin API: list all messages
     Route::get('/contact-us', [ContactUsController::class, 'index']);
-    Route::get('/discounts', [DiscountController::class, 'index']);       // List discounts with pagination
+    Route::get('/discounts', [DiscountController::class, 'index']);
     Route::get('/discounts/{id}', [DiscountController::class, 'show']);   
 
 });
